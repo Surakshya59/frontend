@@ -44,8 +44,18 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li className="mb-4">
-                  <Link to="/trending" className="text-white text-lg">
-                    Trending
+                  <Link to="/popular" className="text-white text-lg">
+                    Popular
+                  </Link>
+                </li>
+                <li className="mb-4">
+                  <Link to="/rating" className="text-white text-lg">
+                    Rating 
+                  </Link>
+                  </li>
+                <li className="mb-4">
+                  <Link to="/genre" className="text-white text-lg">
+                    Genre
                   </Link>
                 </li>
               </ul>
