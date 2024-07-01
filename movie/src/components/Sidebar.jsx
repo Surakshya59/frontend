@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 const Layout = () => {
-  const { adminLoggedIn } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
 
@@ -12,7 +11,6 @@ const Layout = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Close the sidebar when navigating to another page
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
@@ -37,7 +35,7 @@ const Layout = () => {
               </button>
               <h1 className="text-red-900 font-bold text-4xl">MRS</h1>
             </header>
-            {adminLoggedIn && (
+            {user.adminLoggedIn && (
               <div className="bg-gray-800 p-4 rounded-lg">
                 <nav>
                   <ul>
@@ -52,18 +50,18 @@ const Layout = () => {
                       </Link>
                     </li>
                     <li className="mb-4">
-                      <Link to="/popular" className="text-white text-lg">
-                        Popular
+                      <Link to="/trending" className="text-white text-lg">
+                        Trending
                       </Link>
                     </li>
                     <li className="mb-4">
-                      <Link to="/rating" className="text-white text-lg">
-                        Rating
+                      <Link to="/feedback" className="text-white text-lg">
+                        Feedback
                       </Link>
                     </li>
                     <li className="mb-4">
-                      <Link to="/genre" className="text-white text-lg">
-                        Genre
+                      <Link to="/about-us" className="text-white text-lg">
+                        About Us
                       </Link>
                     </li>
                   </ul>
@@ -72,12 +70,17 @@ const Layout = () => {
             )}
           </div>
           <div>
-            {adminLoggedIn ? (
+            {user.adminLoggedIn ? (
               <ul>
                 <li className="mb-4">
-                  <Link to="/logout" className="text-white text-lg">
-                    Logout
+                  <Link to="/profile" className="text-white text-lg">
+                    My Profile
                   </Link>
+                </li>
+                <li className="mb-4">
+                  <button onClick={logout} className="text-white text-lg">
+                    Logout
+                  </button>
                 </li>
               </ul>
             ) : (

@@ -5,18 +5,25 @@ export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [adminLoggedIn, setAdminLoggedIn] = useState(false);
+  const [user, setUser] = useState({
+    adminLoggedIn: false,
+    profilePicture: '',
+    name: '',
+    favorites: [],
+    ratedMovies: [],
+  });
 
   const login = () => {
-    setAdminLoggedIn(true);
+    setUser(prevUser => ({ ...prevUser, adminLoggedIn: true }));
   };
+
   const logout = () => {
     console.log('logout');
-    setAdminLoggedIn(false);
+    setUser(prevUser => ({ ...prevUser, adminLoggedIn: false }));
   };
 
   return (
-    <AuthContext.Provider value={{ adminLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
