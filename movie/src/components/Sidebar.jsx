@@ -21,34 +21,10 @@ const Layout = () => {
     <>
       <header className="w-full fixed top-0 left-0 bg-gray-900 p-4 flex justify-between items-center z-10">
         <div className="flex items-center gap-4">
-          {adminLoggedIn && (
-            <button onClick={toggleSidebar} className="text-black text-3xl">
-              &#9776;
-            </button>
-          )}
+          <button onClick={toggleSidebar} className="text-black text-3xl">
+            &#9776;
+          </button>
           <h1 className="text-red-900 font-bold text-4xl">MRS</h1>
-        </div>
-        <div>
-          {adminLoggedIn ? (
-            <Link to="/logout" className="text-white text-lg">
-              Logout
-            </Link>
-          ) : (
-            <nav>
-              <ul className="flex gap-4">
-                <li>
-                  <Link to="/login" className="text-white text-lg">
-                    Login
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/signup" className="text-white text-lg">
-                    Signup
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          )}
         </div>
       </header>
 
@@ -56,11 +32,9 @@ const Layout = () => {
         <aside className="h-screen fixed top-0 left-0 w-1/6 bg-gray-900 p-4 flex flex-col justify-between z-20">
           <div className="flex flex-col gap-4">
             <header className="flex items-center gap-4 mb-4">
-              {adminLoggedIn && (
-                <button onClick={toggleSidebar} className="text-black text-3xl">
-                  &#9776;
-                </button>
-              )}
+              <button onClick={toggleSidebar} className="text-black text-3xl">
+                &#9776;
+              </button>
               <h1 className="text-red-900 font-bold text-4xl">MRS</h1>
             </header>
             {adminLoggedIn && (
@@ -95,6 +69,32 @@ const Layout = () => {
                   </ul>
                 </nav>
               </div>
+            )}
+          </div>
+          <div>
+            {adminLoggedIn ? (
+              <ul>
+                <li className="mb-4">
+                  <Link to="/logout" className="text-white text-lg">
+                    Logout
+                  </Link>
+                </li>
+              </ul>
+            ) : (
+              <nav>
+                <ul>
+                  <li className="mb-4 mt-1">
+                    <Link to="/login" className="text-white text-lg">
+                      Login
+                    </Link>
+                  </li>
+                  <li className="mb-4">
+                    <Link to="/signup" className="text-white text-lg">
+                      Signup
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
             )}
           </div>
         </aside>
