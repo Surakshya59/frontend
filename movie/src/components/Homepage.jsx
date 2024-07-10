@@ -81,13 +81,16 @@ const HomePage = () => {
               {searchResults.length > 0 && (
                 <div className="w-full max-w-7xl p-4">
                   <h2 className="text-3xl mb-4 font-bold text-yellow-300">Search Results:</h2>
-                  <ul>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.map((result) => (
-                      <li key={result.id} className="text-black bg-white p-2 mb-2 rounded">
-                        {result.title}
-                      </li>
+                      <div key={result.id} className="text-black bg-white p-4 rounded">
+                        <img src={result.poster_path} alt={result.title} className="w-full h-64 object-cover rounded mb-4" />
+                        <h3 className="text-xl font-bold">{result.title}</h3>
+                        <p className="text-sm text-gray-600">Release Date: {result.release_date}</p>
+                        <p className="text-sm">{result.overview}</p>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
               <h2 className="text-3xl mb-4 font-bold text-yellow-300">Recommended for you</h2>
