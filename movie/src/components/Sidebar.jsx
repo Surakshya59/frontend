@@ -55,13 +55,13 @@ const Layout = () => {
                       </Link>
                     </li>
                     <li className="mb-4">
-                      <Link to="/feedback" className="text-white text-lg">
-                        Feedback
+                      <Link to="/popular" className="text-white text-lg">
+                        Popular
                       </Link>
                     </li>
                     <li className="mb-4">
-                      <Link to="/about-us" className="text-white text-lg">
-                        About Us
+                      <Link to="/genre" className="text-white text-lg">
+                        Genre
                       </Link>
                     </li>
                   </ul>
