@@ -1,19 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import backgroundImage from "../images/bgmain.jpg";
 import Sidebar from './Sidebar';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [movies, setMovies] = useState([]);
+  const navigate = useNavigate(); // Replace useHistory with useNavigate
+
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/movies/');
+        setMovies(response.data);
+      } catch (error) {
+        console.error('Error fetching movies:', error);
+      }
+    };
+    fetchMovies();
+  }, []);
 
   const handleSearch = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/search-movies/?query=${searchTerm}`);
-      const data = await response.json();
-      setSearchResults(data.results);
+      const response = await axios.get(`http://127.0.0.1:8000/api/search-movies/?query=${searchTerm}`);
+      setSearchResults(response.data.results);
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
@@ -32,14 +47,27 @@ const HomePage = () => {
     borderRadius: '10px',
   };
 
+  const Arrow = (props) => {
+    const { className, style, onClick, direction } = props;
+    return (
+      <div
+        className={className}
+        style={{ ...style, display: 'block', background: 'black', color: 'white', padding: '10px', borderRadius: '50%' }}
+        onClick={onClick}
+      >
+        {direction === 'next' ? '>' : '<'}
+      </div>
+    );
+  };
+
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 1,
-    nextArrow: <div className="text-black">Next</div>,
-    prevArrow: <div className="text-black">Prev</div>,
+    nextArrow: <Arrow direction="next" />,
+    prevArrow: <Arrow direction="prev" />,
     responsive: [
       {
         breakpoint: 1024,
@@ -54,6 +82,10 @@ const HomePage = () => {
         }
       }
     ]
+  };
+
+  const handleMovieClick = (movieId) => {
+    navigate(`/movie/${movieId}`); // Replace history.push with navigate
   };
 
   return (
@@ -78,31 +110,50 @@ const HomePage = () => {
                   Search
                 </button>
               </div>
-              {searchResults.length > 0 && (
+              {searchResults && searchResults.length > 0 && (
                 <div className="w-full max-w-7xl p-4">
                   <h2 className="text-3xl mb-4 font-bold text-yellow-300">Search Results:</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.map((result) => (
-                      <div key={result.id} className="text-black bg-white p-4 rounded">
-                        <img src={result.poster_path} alt={result.title} className="w-full h-64 object-cover rounded mb-4" />
+                      <div key={result.id} className="text-black bg-white p-4 rounded" onClick={() => handleMovieClick(result.id)}>
+                        <img 
+                          src={result.poster_url} 
+                          alt={result.title} 
+                          className="w-full h-64 object-cover rounded mb-4" 
+                        />
                         <h3 className="text-xl font-bold">{result.title}</h3>
                         <p className="text-sm text-gray-600">Release Date: {result.release_date}</p>
-                        <p className="text-sm">{result.overview}</p>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-              <h2 className="text-3xl mb-4 font-bold text-yellow-300">Recommended for you</h2>
+              <h2 className="text-3xl mb-4 font-bold text-yellow-300">All Movies</h2>
               <Slider {...settings}>
-                <div className="p-2">
-                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
-                </div>
+                {movies.map((movie) => (
+                  <div key={movie.id} className="p-2" onClick={() => handleMovieClick(movie.id)}>
+                    <div className="text-black bg-white p-4 rounded" style={{ height: '300px', width: '200px' }}>
+                      <img 
+                        src={movie.poster_url} 
+                        alt={movie.title} 
+                        className="w-full h-full object-cover rounded mb-4" 
+                      />
+                      <h3 className="text-xl font-bold">{movie.title}</h3>
+                      <p className="text-sm text-gray-600">Release Date: {movie.release_date}</p>
+                    </div>
+                  </div>
+                ))}
               </Slider>
             </div>
             <div className="mb-10 w-full max-w-7xl p-4">
               <h2 className="text-3xl mb-4 font-bold text-yellow-300">Popular</h2>
               <Slider {...settings}>
+                <div className="p-2">
+                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
+                </div>
+                <div className="p-2">
+                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
+                </div>
                 <div className="p-2">
                   <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
                 </div>

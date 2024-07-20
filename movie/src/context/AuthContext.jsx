@@ -13,12 +13,14 @@ export const AuthProvider = ({ children }) => {
     ratedMovies: [],
   });
 
-  const login = () => {
+  const login = (token) => {
+    localStorage.setItem('token', token); // Store token in localStorage
     setUser(prevUser => ({ ...prevUser, adminLoggedIn: true }));
   };
 
   const logout = () => {
     console.log('logout');
+    localStorage.removeItem('token'); // Remove token from localStorage
     setUser(prevUser => ({ ...prevUser, adminLoggedIn: false }));
   };
 
