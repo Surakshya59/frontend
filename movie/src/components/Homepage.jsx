@@ -11,19 +11,22 @@ const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [movies, setMovies] = useState([]);
-  const navigate = useNavigate(); // Replace useHistory with useNavigate
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/movies/');
-        setMovies(response.data);
+        const response = await axios.get(`http://127.0.0.1:8000/api/movies/?page=${page}`);
+        setMovies(prevMovies => [...prevMovies, ...response.data.results]);
+        setHasMore(response.data.next !== null);
       } catch (error) {
         console.error('Error fetching movies:', error);
       }
     };
     fetchMovies();
-  }, []);
+  }, [page]);
 
   const handleSearch = async () => {
     try {
@@ -32,6 +35,10 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
+  };
+
+  const loadMoreMovies = () => {
+    if (hasMore) setPage(prevPage => prevPage + 1);
   };
 
   const backgroundStyle = {
@@ -85,7 +92,24 @@ const HomePage = () => {
   };
 
   const handleMovieClick = (movieId) => {
-    navigate(`/movie/${movieId}`); // Replace history.push with navigate
+    navigate(`/movie/${movieId}`);
+  };
+
+  const LazyImage = ({ src, alt }) => {
+    const [visible, setVisible] = useState(false);
+
+    const handleImageLoad = () => {
+      setVisible(true);
+    };
+
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-64 object-cover rounded mb-4 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={handleImageLoad}
+      />
+    );
   };
 
   return (
@@ -116,10 +140,9 @@ const HomePage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.map((result) => (
                       <div key={result.id} className="text-black bg-white p-4 rounded" onClick={() => handleMovieClick(result.id)}>
-                        <img 
+                        <LazyImage 
                           src={result.poster_url} 
                           alt={result.title} 
-                          className="w-full h-64 object-cover rounded mb-4" 
                         />
                         <h3 className="text-xl font-bold">{result.title}</h3>
                         <p className="text-sm text-gray-600">Release Date: {result.release_date}</p>
@@ -133,10 +156,9 @@ const HomePage = () => {
                 {movies.map((movie) => (
                   <div key={movie.id} className="p-2" onClick={() => handleMovieClick(movie.id)}>
                     <div className="text-black bg-white p-4 rounded" style={{ height: '300px', width: '200px' }}>
-                      <img 
+                      <LazyImage 
                         src={movie.poster_url} 
                         alt={movie.title} 
-                        className="w-full h-full object-cover rounded mb-4" 
                       />
                       <h3 className="text-xl font-bold">{movie.title}</h3>
                       <p className="text-sm text-gray-600">Release Date: {movie.release_date}</p>
@@ -144,6 +166,14 @@ const HomePage = () => {
                   </div>
                 ))}
               </Slider>
+              {hasMore && (
+                <button 
+                  onClick={loadMoreMovies} 
+                  className="mt-4 p-2 bg-yellow-500 text-black font-bold rounded"
+                >
+                  Load More
+                </button>
+              )}
             </div>
             <div className="mb-10 w-full max-w-7xl p-4">
               <h2 className="text-3xl mb-4 font-bold text-yellow-300">Popular</h2>
