@@ -152,7 +152,7 @@ const HomePage = () => {
                 </div>
               )}
               <h2 className="text-3xl mb-4 font-bold text-yellow-300">All Movies</h2>
-              <Slider {...settings}>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {movies.map((movie) => (
                   <div key={movie.id} className="p-2" onClick={() => handleMovieClick(movie.id)}>
                     <div className="text-black bg-white p-4 rounded" style={{ height: '300px', width: '200px' }}>
@@ -165,7 +165,7 @@ const HomePage = () => {
                     </div>
                   </div>
                 ))}
-              </Slider>
+              </div>
               {hasMore && (
                 <button 
                   onClick={loadMoreMovies} 
