@@ -7,6 +7,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from 'react-router-dom';
 import LazyLoad from 'react-lazyload';
+import MovieDescription from './MovieDescription';
 
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -80,7 +81,7 @@ const HomePage = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: 3,
     slidesToScroll: 1,
     nextArrow: <Arrow direction="next" />,
     prevArrow: <Arrow direction="prev" />,
@@ -88,13 +89,13 @@ const HomePage = () => {
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 3,
+          slidesToShow: 2,
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 1,
         }
       }
     ]

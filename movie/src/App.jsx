@@ -13,6 +13,7 @@ import Watchlist from './components/Watchlist';
 import Trending from './components/Trending';
 import Footer from './Footer/Footer'; // Import the Footer component
 import Profile from './Profile'; // Import Profile component
+import MovieDescription from './components/MovieDescription'; // Import the MovieDescription component
 import './index.css'; // Ensure correct path to your CSS file
 
 const App = () => {
@@ -44,9 +45,10 @@ const Main = () => {
           <Route path="/trending" element={<Trending />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/movie/:id" element={<MovieDescription />} />
         </Routes>
       </div>
-      <Footer /> 
+      <Footer />
     </div>
   );
 };
