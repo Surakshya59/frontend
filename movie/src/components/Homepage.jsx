@@ -22,10 +22,10 @@ const HomePage = () => {
       setLoading(true);
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/?page=${page}&limit=50`);
-        const results = response.data.results;
+        const results = response.data;
         if (Array.isArray(results)) {
           setMovies(prevMovies => [...prevMovies, ...results]);
-          setHasMore(response.data.next !== null);
+          setHasMore(results.length === 50);  // Assume has more if 50 results are returned
         } else {
           console.error('Unexpected response format:', response.data);
         }
@@ -41,7 +41,7 @@ const HomePage = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/search-movies/?query=${searchTerm}`);
-      const results = response.data.results;
+      const results = response.data;
       if (Array.isArray(results)) {
         setSearchResults(results);
         setMovies([]);  // Clear all movies when search is performed
@@ -208,21 +208,6 @@ const HomePage = () => {
                 </>
               )}
             </div>
-            {/* This section can be removed or replaced with other content */}
-            {/* <div className="mb-10 w-full max-w-7xl p-4">
-              <h2 className="text-3xl mb-4 font-bold text-yellow-300">Popular</h2>
-              <Slider {...settings}>
-                <div className="p-2">
-                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
-                </div>
-                <div className="p-2">
-                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
-                </div>
-                <div className="p-2">
-                  <div className="w-48 h-50 bg-green-400 overflow-hidden"></div>
-                </div>
-              </Slider>
-            </div> */}
           </div>
         </main>
       </div>
