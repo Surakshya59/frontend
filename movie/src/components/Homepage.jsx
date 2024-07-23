@@ -7,7 +7,6 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useNavigate } from 'react-router-dom';
 import LazyLoad from 'react-lazyload';
-import MovieDescription from './MovieDescription';
 
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,11 +37,10 @@ const HomePage = () => {
   const handleSearch = async () => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/search-movies/?query=${searchTerm}`);
-      // Check if the response is directly an array
-      if (Array.isArray(response.data)) {
-        setSearchResults(response.data);
-      } else if (Array.isArray(response.data.results)) {
+      if (Array.isArray(response.data.results)) {
         setSearchResults(response.data.results);
+      } else if (Array.isArray(response.data)) {
+        setSearchResults(response.data);
       } else {
         console.error('Unexpected response format:', response.data);
       }
@@ -59,8 +57,8 @@ const HomePage = () => {
   };
 
   const overlayStyle = {
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    padding: '0px',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: '20px',
     borderRadius: '10px',
   };
 
