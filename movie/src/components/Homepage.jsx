@@ -12,8 +12,6 @@ const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [movies, setMovies] = useState([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -21,11 +19,9 @@ const HomePage = () => {
     const fetchMovies = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/movies/?page=${page}&limit=50`);
-        const results = response.data;
-        if (Array.isArray(results)) {
-          setMovies(prevMovies => [...prevMovies, ...results]);
-          setHasMore(results.length === 50);  // Assume has more if 50 results are returned
+        const response = await axios.get('http://127.0.0.1:8000/api/movies/?page=1&limit=50');
+        if (Array.isArray(response.data.results)) {
+          setMovies(response.data.results);
         } else {
           console.error('Unexpected response format:', response.data);
         }
@@ -36,25 +32,22 @@ const HomePage = () => {
       }
     };
     fetchMovies();
-  }, [page]);
+  }, []);
 
   const handleSearch = async () => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/search-movies/?query=${searchTerm}`);
-      const results = response.data;
-      if (Array.isArray(results)) {
-        setSearchResults(results);
-        setMovies([]);  // Clear all movies when search is performed
+      // Check if the response is directly an array
+      if (Array.isArray(response.data)) {
+        setSearchResults(response.data);
+      } else if (Array.isArray(response.data.results)) {
+        setSearchResults(response.data.results);
       } else {
         console.error('Unexpected response format:', response.data);
       }
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
-  };
-
-  const loadMoreMovies = () => {
-    if (hasMore) setPage(prevPage => prevPage + 1);
   };
 
   const backgroundStyle = {
@@ -65,8 +58,8 @@ const HomePage = () => {
   };
 
   const overlayStyle = {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: '20px',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    padding: '0px',
     borderRadius: '10px',
   };
 
@@ -87,7 +80,7 @@ const HomePage = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: 4,
     slidesToScroll: 1,
     nextArrow: <Arrow direction="next" />,
     prevArrow: <Arrow direction="prev" />,
@@ -95,13 +88,13 @@ const HomePage = () => {
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2,
+          slidesToShow: 3,
         }
       },
       {
         breakpoint: 768,
         settings: {
-          slidesToShow: 1,
+          slidesToShow: 2,
         }
       }
     ]
@@ -123,7 +116,7 @@ const HomePage = () => {
         <img
           src={src}
           alt={alt}
-          className={`w-full h-64 object-cover rounded mb-4 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
+          className={`w-full h-48 object-cover rounded mb-2 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
           onLoad={handleImageLoad}
         />
       </LazyLoad>
@@ -132,7 +125,7 @@ const HomePage = () => {
 
   const SkeletonLoader = () => (
     <div className="animate-pulse">
-      <div className="bg-gray-300 h-64 w-full mb-4"></div>
+      <div className="bg-gray-300 h-48 w-full mb-2"></div>
       <div className="bg-gray-300 h-6 w-3/4 mb-2"></div>
       <div className="bg-gray-300 h-4 w-1/2"></div>
     </div>
@@ -160,18 +153,17 @@ const HomePage = () => {
                   Search
                 </button>
               </div>
-              {searchResults && searchResults.length > 0 ? (
+              {searchResults.length > 0 ? (
                 <div className="w-full max-w-7xl p-4">
-                  <h2 className="text-3xl mb-4 font-bold text-yellow-300">Search Results:</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {searchResults.map((result) => (
-                      <div key={result.id} className="text-black bg-white p-4 rounded" onClick={() => handleMovieClick(result.id)}>
+                      <div key={result.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(result.id)}>
                         <LazyImage 
                           src={result.poster_url} 
                           alt={result.title} 
                         />
                         <h3 className="text-xl font-bold">{result.title}</h3>
-                        <p className="text-sm text-gray-600">Release Date: {result.release_date}</p>
+                        <p className="text-sm">Release Date: {result.release_date}</p>
                       </div>
                     ))}
                   </div>
@@ -181,30 +173,20 @@ const HomePage = () => {
                   <h2 className="text-3xl mb-4 font-bold text-yellow-300">All Movies</h2>
                   <Slider {...settings}>
                     {loading ? (
-                      Array.from({ length: 3 }).map((_, index) => <SkeletonLoader key={index} />)
+                      Array.from({ length: 6 }).map((_, index) => <SkeletonLoader key={index} />)
                     ) : (
                       movies.map((movie) => (
-                        <div key={movie.id} className="p-2" onClick={() => handleMovieClick(movie.id)}>
-                          <div className="text-black bg-white p-4 rounded" style={{ height: '300px', width: '200px' }}>
-                            <LazyImage 
-                              src={movie.poster_url} 
-                              alt={movie.title} 
-                            />
-                            <h3 className="text-xl font-bold">{movie.title}</h3>
-                            <p className="text-sm text-gray-600">Release Date: {movie.release_date}</p>
-                          </div>
+                        <div key={movie.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(movie.id)}>
+                          <LazyImage 
+                            src={movie.poster_url} 
+                            alt={movie.title} 
+                          />
+                          <h3 className="text-xl font-bold">{movie.title}</h3>
+                          <p className="text-sm">Release Date: {movie.release_date}</p>
                         </div>
                       ))
                     )}
                   </Slider>
-                  {hasMore && !loading && (
-                    <button 
-                      onClick={loadMoreMovies} 
-                      className="mt-4 p-2 bg-yellow-500 text-black font-bold rounded"
-                    >
-                      Load More
-                    </button>
-                  )}
                 </>
               )}
             </div>
