@@ -123,10 +123,10 @@ const HomePage = () => {
   };
 
   const SkeletonLoader = () => (
-    <div className="animate-pulse">
-      <div className="bg-gray-300 h-48 w-full mb-2"></div>
-      <div className="bg-gray-300 h-6 w-3/4 mb-2"></div>
-      <div className="bg-gray-300 h-4 w-1/2"></div>
+    <div className="animate-pulse bg-gray-800 rounded p-4">
+      <div className="bg-gray-600 h-48 w-full mb-2"></div>
+      <div className="bg-gray-600 h-6 w-3/4 mb-2"></div>
+      <div className="bg-gray-600 h-4 w-1/2"></div>
     </div>
   );
 
@@ -154,7 +154,7 @@ const HomePage = () => {
               </div>
               {searchResults.length > 0 ? (
                 <div className="w-full max-w-7xl p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {searchResults.map((result) => (
                       <div key={result.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(result.id)}>
                         <LazyImage 
@@ -172,10 +172,14 @@ const HomePage = () => {
                   <h2 className="text-3xl mb-4 font-bold text-yellow-300">All Movies</h2>
                   <Slider {...settings}>
                     {loading ? (
-                      Array.from({ length: 6 }).map((_, index) => <SkeletonLoader key={index} />)
+                      Array.from({ length: 6 }).map((_, index) => (
+                        <div key={index} className="p-4">
+                          <SkeletonLoader />
+                        </div>
+                      ))
                     ) : (
                       movies.map((movie) => (
-                        <div key={movie.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(movie.id)}>
+                        <div key={movie.id} className="text-white bg-black p-4 rounded mx-2">
                           <LazyImage 
                             src={movie.poster_url} 
                             alt={movie.title} 
