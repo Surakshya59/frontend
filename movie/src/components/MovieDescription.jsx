@@ -9,12 +9,15 @@ const backgroundStyle = {
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
+  minHeight: '100vh',
 };
 
 const overlayStyle = {
-  backgroundColor: 'rgba(0, 0, 0, 0)',
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
   padding: '20px',
   borderRadius: '10px',
+  width: '100%',
+  height: '100%',
 };
 
 const MovieDescription = () => {
@@ -30,6 +33,18 @@ const MovieDescription = () => {
         setMovie(response.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);
+        if (err.response) {
+          // Server responded with a status other than 2xx
+          console.error('Error response data:', err.response.data);
+          console.error('Error response status:', err.response.status);
+          console.error('Error response headers:', err.response.headers);
+        } else if (err.request) {
+          // Request was made but no response was received
+          console.error('Error request data:', err.request);
+        } else {
+          // Something happened in setting up the request
+          console.error('Error message:', err.message);
+        }
         setError('Movie not found or there was an error fetching the movie details.');
       } finally {
         setLoading(false);
@@ -51,7 +66,7 @@ const MovieDescription = () => {
   }
 
   return (
-    <div style={backgroundStyle} className="min-h-screen flex flex-col">
+    <div style={backgroundStyle} className="flex flex-col">
       <div className="flex">
         <Sidebar />
         <main className="relative ml-60 mt-20 text-white w-full flex flex-col items-center">
