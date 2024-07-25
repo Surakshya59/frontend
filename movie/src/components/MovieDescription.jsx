@@ -102,13 +102,14 @@ const MovieDescription = () => {
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/movies/${id}/rate/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/api/ratings/create/`, {
+        movie: id,
         rating
       });
       setSubmitSuccess('Rating submitted successfully!');
       setMovie((prevMovie) => ({
         ...prevMovie,
-        average_rating: response.data.average_rating,
+        avg_rating: response.data.avg_rating,
       }));
       setRating(0);
       setSubmitError(null);
