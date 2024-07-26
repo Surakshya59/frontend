@@ -61,7 +61,7 @@ const starStyle = {
 const filledStarStyle = {
   color: '#ffc107', // Color of filled stars
 };
-
+const token=localStorage.getItem('token');
 const MovieDescription = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
@@ -70,6 +70,7 @@ const MovieDescription = () => {
   const [rating, setRating] = useState(0);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const user_id = localStorage.getItem('user_id');
 
   useEffect(() => {
     const fetchMovie = async () => {
@@ -78,15 +79,6 @@ const MovieDescription = () => {
         setMovie(response.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);
-        if (err.response) {
-          console.error('Error response data:', err.response.data);
-          console.error('Error response status:', err.response.status);
-          console.error('Error response headers:', err.response.headers);
-        } else if (err.request) {
-          console.error('Error request data:', err.request);
-        } else {
-          console.error('Error message:', err.message);
-        }
         setError('Movie not found or there was an error fetching the movie details.');
       } finally {
         setLoading(false);
@@ -101,10 +93,24 @@ const MovieDescription = () => {
 
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+    console.log(token);
+
+    if (!token) {
+      setSubmitError('You must be logged in to rate a movie.');
+      setSubmitSuccess(null);
+      return;
+    }
+    console.log(token);
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/ratings/create/`, {
-        movie: id,
+      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
+        user : user_id,
+        movie : id,
         rating
+      }, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
       });
       setSubmitSuccess('Rating submitted successfully!');
       setMovie((prevMovie) => ({
@@ -124,7 +130,7 @@ const MovieDescription = () => {
     return [1, 2, 3, 4, 5].map((star) => (
       <span
         key={star}
-        style={star <= rating ? {...starStyle, ...filledStarStyle} : starStyle}
+        style={star <= rating ? { ...starStyle, ...filledStarStyle } : starStyle}
         onClick={() => handleRatingChange(star)}
       >
         ★

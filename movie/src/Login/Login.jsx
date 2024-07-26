@@ -47,7 +47,9 @@ const LoginPage = () => {
       console.log('Server response:', response);
 
       if (response.status === 200 ) {
+        console.log(response.data.token);
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user_id',response.data.id);
         window.dispatchEvent(new Event('loginStateChanged'));
         setSuccess('Login successful!');
         login();
