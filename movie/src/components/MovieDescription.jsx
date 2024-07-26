@@ -62,43 +62,29 @@ const filledStarStyle = {
   color: '#ffc107', // Color of filled stars
 };
 
-const reviewFormStyle = {
-  marginTop: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'flex-start',
-};
-
-const reviewBoxStyle = {
-  backgroundColor: 'rgba(255, 255, 255, 0.8)',  // White box with opacity
-  padding: '10px',
-  borderRadius: '10px',
-  marginTop: '10px',
-  width: '100%',
-};
-
-const token = localStorage.getItem('token');
-
 const MovieDescription = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rating, setRating] = useState(0);
+  const [review, setReview] = useState(''); // New state for the review
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
-  const [reviewText, setReviewText] = useState('');
-  const [reviews, setReviews] = useState([]);
   const user_id = localStorage.getItem('user_id');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchMovie = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
+<<<<<<< HEAD
 
         // const reviewResponse = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/review/`);
         // setReviews(reviewResponse.data);
+=======
+>>>>>>> 7221c199b97371dc82092ddb24074f26aeb06036
       } catch (err) {
         console.error('Error fetching movie details:', err);
         setError('Movie not found or there was an error fetching the movie details.');
@@ -115,7 +101,7 @@ const MovieDescription = () => {
 
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    console.log(token);
 
     if (!token) {
       setSubmitError('You must be logged in to rate a movie.');
@@ -127,20 +113,23 @@ const MovieDescription = () => {
       const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
         user: user_id,
         movie: id,
-        rating
+        rating,
+        review // Include review in the request payload
       }, {
         headers: {
           Authorization: `Token ${token}`
         }
       });
-      setSubmitSuccess('Rating submitted successfully!');
+      setSubmitSuccess('Rating and review submitted successfully!');
       setMovie((prevMovie) => ({
         ...prevMovie,
         avg_rating: response.data.avg_rating,
       }));
       setRating(0);
+      setReview(''); // Clear the review field
       setSubmitError(null);
     } catch (err) {
+<<<<<<< HEAD
       console.error('Error submitting rating:', err);
       setSubmitError('Failed to submit rating. Please try again.');
       setSubmitSuccess(null);
@@ -174,6 +163,10 @@ const MovieDescription = () => {
     } catch (err) {
       console.error('Error submitting review:', err);
       setSubmitError('Failed to submit review. Please try again.');
+=======
+      console.error('Error submitting rating and review:', err);
+      setSubmitError('Failed to submit rating and review. Please try again.');
+>>>>>>> 7221c199b97371dc82092ddb24074f26aeb06036
       setSubmitSuccess(null);
     }
   };
@@ -203,8 +196,8 @@ const MovieDescription = () => {
   }
 
   return (
-    <div style={backgroundStyle} className="flex flex-col">
-      <div className="flex">
+    <div style={backgroundStyle} className="flex flex-col min-h-screen">
+      <div className="flex flex-grow">
         <Sidebar />
         <main className="relative ml-60 mt-20 text-white w-full flex flex-col items-center">
           <div className="absolute top-0 left-0 w-full h-full" style={overlayStyle}>
@@ -231,34 +224,20 @@ const MovieDescription = () => {
                     <div id="rating" name="rating" style={starContainerStyle}>
                       {renderStars()}
                     </div>
-                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Rating</button>
+                    <label htmlFor="review" className="mt-4 mb-2"><strong>Leave a review:</strong></label>
+                    <textarea
+                      id="review"
+                      name="review"
+                      value={review}
+                      onChange={(e) => setReview(e.target.value)}
+                      rows="4"
+                      className="w-full p-2 rounded bg-gray-800 bg-opacity-50 text-white"
+                    />
+                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Rating & Review</button>
                   </form>
 
                   {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
                   {submitSuccess && <p className="text-green-500 mt-2">{submitSuccess}</p>}
-
-                  <form style={reviewFormStyle} onSubmit={handleReviewSubmit}>
-                    <label htmlFor="review" className="mb-2"><strong>Leave a review:</strong></label>
-                    <textarea
-                      id="review"
-                      name="review"
-                      rows="4"
-                      cols="50"
-                      value={reviewText}
-                      onChange={(e) => setReviewText(e.target.value)}
-                      className="p-2 rounded bg-white text-black"
-                    />
-                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Review</button>
-                  </form>
-
-                  <div className="mt-4">
-                    <h2 className="text-2xl font-bold">Reviews</h2>
-                    {reviews.map((review, index) => (
-                      <div key={index} style={reviewBoxStyle} className="text-black">
-                        <p><strong>User {review.user}:</strong> {review.review}</p>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
