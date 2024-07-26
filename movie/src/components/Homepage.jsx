@@ -108,20 +108,28 @@ const HomePage = () => {
     navigate(`/movie/${movieId}`);
   };
 
-  const LazyImage = ({ src, alt }) => {
+  const LazyImage = ({ src, fallbackSrc, alt }) => {
     const [visible, setVisible] = useState(false);
+    const [imgSrc, setImgSrc] = useState(src);
 
     const handleImageLoad = () => {
       setVisible(true);
     };
 
+    const handleImageError = () => {
+      if (imgSrc !== fallbackSrc) {
+        setImgSrc(fallbackSrc);
+      }
+    };
+
     return (
       <LazyLoad height={200} offset={100} once>
         <img
-          src={src}
+          src={imgSrc}
           alt={alt}
           className={`w-full h-48 object-cover rounded mb-2 transition-opacity duration-500 ${visible ? 'opacity-100' : 'opacity-0'}`}
           onLoad={handleImageLoad}
+          onError={handleImageError}
         />
       </LazyLoad>
     );
@@ -163,7 +171,8 @@ const HomePage = () => {
                     {searchResults.map((result) => (
                       <div key={result.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(result.id)}>
                         <LazyImage 
-                          src={result.poster_url} 
+                          src={result.poster_url ? result.poster_url : `data:image/jpeg;base64,${result.poster}`} 
+                          fallbackSrc="/path/to/default/poster.jpg" 
                           alt={result.title} 
                         />
                         <h3 className="text-xl font-bold">{result.title}</h3>
@@ -182,7 +191,8 @@ const HomePage = () => {
                       movies.map((movie) => (
                         <div key={movie.id} className="text-white bg-black p-4 rounded" onClick={() => handleMovieClick(movie.id)}>
                           <LazyImage 
-                            src={movie.poster_url} 
+                            src={movie.poster_url ? movie.poster_url : `data:image/jpeg;base64,${movie.poster}`} 
+                            fallbackSrc="/path/to/default/poster.jpg" 
                             alt={movie.title} 
                           />
                           <h3 className="text-xl font-bold">{movie.title}</h3>

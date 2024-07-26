@@ -61,7 +61,24 @@ const starStyle = {
 const filledStarStyle = {
   color: '#ffc107', // Color of filled stars
 };
-const token=localStorage.getItem('token');
+
+const reviewFormStyle = {
+  marginTop: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+};
+
+const reviewBoxStyle = {
+  backgroundColor: 'rgba(255, 255, 255, 0.8)',  // White box with opacity
+  padding: '10px',
+  borderRadius: '10px',
+  marginTop: '10px',
+  width: '100%',
+};
+
+const token = localStorage.getItem('token');
+
 const MovieDescription = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
@@ -70,6 +87,8 @@ const MovieDescription = () => {
   const [rating, setRating] = useState(0);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [reviewText, setReviewText] = useState('');
+  const [reviews, setReviews] = useState([]);
   const user_id = localStorage.getItem('user_id');
 
   useEffect(() => {
@@ -77,6 +96,9 @@ const MovieDescription = () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
+
+        const reviewResponse = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/review/`);
+        setReviews(reviewResponse.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);
         setError('Movie not found or there was an error fetching the movie details.');
@@ -94,18 +116,17 @@ const MovieDescription = () => {
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    console.log(token);
 
     if (!token) {
       setSubmitError('You must be logged in to rate a movie.');
       setSubmitSuccess(null);
       return;
     }
-    console.log(token);
+
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
-        user : user_id,
-        movie : id,
+      const response = await axios.post(`http://127.0.0.1:8000/api/ratings/create/`, {
+        user: user_id,
+        movie: id,
         rating
       }, {
         headers: {
@@ -122,6 +143,37 @@ const MovieDescription = () => {
     } catch (err) {
       console.error('Error submitting rating:', err);
       setSubmitError('Failed to submit rating. Please try again.');
+      setSubmitSuccess(null);
+    }
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      setSubmitError('You must be logged in to submit a review.');
+      setSubmitSuccess(null);
+      return;
+    }
+
+    try {
+      const response = await axios.post(`http://127.0.0.1:8000/api/movies/${id}/review/`, {
+        user: user_id,
+        movie: id,
+        review: reviewText,
+      }, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      setSubmitSuccess('Review submitted successfully!');
+      setReviews((prevReviews) => [...prevReviews, response.data]);
+      setReviewText('');
+      setSubmitError(null);
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      setSubmitError('Failed to submit review. Please try again.');
       setSubmitSuccess(null);
     }
   };
@@ -184,6 +236,29 @@ const MovieDescription = () => {
 
                   {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
                   {submitSuccess && <p className="text-green-500 mt-2">{submitSuccess}</p>}
+
+                  <form style={reviewFormStyle} onSubmit={handleReviewSubmit}>
+                    <label htmlFor="review" className="mb-2"><strong>Leave a review:</strong></label>
+                    <textarea
+                      id="review"
+                      name="review"
+                      rows="4"
+                      cols="50"
+                      value={reviewText}
+                      onChange={(e) => setReviewText(e.target.value)}
+                      className="p-2 rounded bg-white text-black"
+                    />
+                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Review</button>
+                  </form>
+
+                  <div className="mt-4">
+                    <h2 className="text-2xl font-bold">Reviews</h2>
+                    {reviews.map((review, index) => (
+                      <div key={index} style={reviewBoxStyle} className="text-black">
+                        <p><strong>User {review.user}:</strong> {review.review}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
