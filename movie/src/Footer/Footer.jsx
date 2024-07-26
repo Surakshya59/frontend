@@ -1,9 +1,10 @@
+// src/Footer/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white py-4 fixed bottom-0 w-full">
+    <footer className="bg-gray-900 text-white py-4">
       <div className="container mx-auto text-center">
         <div className="flex justify-center space-x-4 mb-4">
           <Link to="/about-us" className="hover:text-gray-400">About Us</Link>
