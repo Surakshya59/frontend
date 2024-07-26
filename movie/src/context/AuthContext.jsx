@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
@@ -13,17 +14,24 @@ export const AuthProvider = ({ children }) => {
     ratedMovies: [],
   });
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUser(prevUser => ({ ...prevUser, adminLoggedIn: true }));
+    }
+  }, []);
 
   const login = (token) => {
-    // localStorage.setItem('token', token); // Store token in localStorage
-    // console.log(token);
+    localStorage.setItem('token', token); // Store token in localStorage
     setUser(prevUser => ({ ...prevUser, adminLoggedIn: true }));
   };
 
   const logout = () => {
-    console.log('logout');
     localStorage.removeItem('token'); // Remove token from localStorage
     setUser(prevUser => ({ ...prevUser, adminLoggedIn: false }));
+    navigate('/');
   };
 
   return (

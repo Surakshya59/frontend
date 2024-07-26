@@ -1,6 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './Landing/Suru';
 import SignupPage from './Signup/Signup';
 import LoginPage from './Login/Login';
@@ -17,19 +16,6 @@ import MovieDescription from './components/MovieDescription'; // Import the Movi
 import './index.css'; // Ensure correct path to your CSS file
 
 const App = () => {
-  return (
-    <AuthProvider>
-      <Router>
-        <Main />
-      </Router>
-    </AuthProvider>
-  );
-};
-
-const Main = () => {
-  const location = useLocation();
-  const { user } = useAuth();
-
   return (
     <div className="relative min-h-screen flex flex-col">
       <div className="flex-grow">
