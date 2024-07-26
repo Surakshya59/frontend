@@ -8,8 +8,9 @@ const backgroundStyle = {
   backgroundImage: `url(${backgroundImage})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  backgroundRepeat: 'repeat',
+  backgroundRepeat: 'no-repeat',
   minHeight: '100vh',
+  width: '100vw',
 };
 
 const overlayStyle = {
@@ -18,15 +19,20 @@ const overlayStyle = {
   borderRadius: '10px',
   width: '100%',
   height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 };
 
 const boxStyle = {
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',  // Black box with opacity
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',
   padding: '20px',
   borderRadius: '10px',
-  color: 'white',  // White text color
+  color: 'white',
   display: 'flex',
   alignItems: 'flex-start',
+  width: '80%',
+  maxWidth: '800px',
 };
 
 const posterStyle = {
@@ -45,6 +51,7 @@ const ratingFormStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
+  width: '100%',
 };
 
 const starContainerStyle = {
@@ -55,11 +62,11 @@ const starContainerStyle = {
 const starStyle = {
   fontSize: '30px',
   cursor: 'pointer',
-  color: '#ddd', // Default color of stars
+  color: '#ddd',
 };
 
 const filledStarStyle = {
-  color: '#ffc107', // Color of filled stars
+  color: '#ffc107',
 };
 
 const MovieDescription = () => {
@@ -68,7 +75,7 @@ const MovieDescription = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rating, setRating] = useState(0);
-  const [review, setReview] = useState(''); // New state for the review
+  const [review, setReview] = useState('');
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const user_id = localStorage.getItem('user_id');
@@ -95,8 +102,6 @@ const MovieDescription = () => {
 
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
-    console.log(token);
-
     if (!token) {
       setSubmitError('You must be logged in to rate a movie.');
       setSubmitSuccess(null);
@@ -108,7 +113,7 @@ const MovieDescription = () => {
         user: user_id,
         movie: id,
         rating,
-        review // Include review in the request payload
+        review
       }, {
         headers: {
           Authorization: `Token ${token}`
@@ -120,7 +125,7 @@ const MovieDescription = () => {
         avg_rating: response.data.avg_rating,
       }));
       setRating(0);
-      setReview(''); // Clear the review field
+      setReview('');
       setSubmitError(null);
     } catch (err) {
       console.error('Error submitting rating and review:', err);
@@ -157,7 +162,7 @@ const MovieDescription = () => {
     <div style={backgroundStyle} className="flex flex-col min-h-screen">
       <div className="flex flex-grow">
         <Sidebar />
-        <main className="relative ml-60 mt-20 text-white w-full flex flex-col items-center">
+        <main className="relative text-white w-full flex flex-col items-center">
           <div className="absolute top-0 left-0 w-full h-full" style={overlayStyle}>
             <div className="mywidth mb-10 w-full max-w-7xl p-4">
               <div style={boxStyle}>
