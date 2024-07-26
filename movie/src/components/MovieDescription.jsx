@@ -78,6 +78,7 @@ const MovieDescription = () => {
   const [review, setReview] = useState('');
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
+  const [userRating, setUserRating] = useState(null); // New state for the user's rating
   const user_id = localStorage.getItem('user_id');
   const token = localStorage.getItem('token');
 
@@ -86,6 +87,19 @@ const MovieDescription = () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
+        // Fetch user's rating for this movie
+        if (token) {
+          const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+            headers: {
+              Authorization: `Token ${token}`
+            }
+          });
+          if (ratingResponse.data) {
+            setUserRating(ratingResponse.data);
+            setRating(ratingResponse.data.rating);
+            setReview(ratingResponse.data.review);
+          }
+        }
       } catch (err) {
         console.error('Error fetching movie details:', err);
         setError('Movie not found or there was an error fetching the movie details.');
@@ -94,7 +108,7 @@ const MovieDescription = () => {
       }
     };
     fetchMovie();
-  }, [id]);
+  }, [id, token, user_id]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -109,27 +123,68 @@ const MovieDescription = () => {
     }
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
-        user: user_id,
-        movie: id,
-        rating,
-        review
-      }, {
-        headers: {
-          Authorization: `Token ${token}`
-        }
-      });
-      setSubmitSuccess('Rating and review submitted successfully!');
-      setMovie((prevMovie) => ({
-        ...prevMovie,
-        avg_rating: response.data.avg_rating,
-      }));
-      setRating(0);
-      setReview('');
+      if (userRating) {
+        // Update existing rating
+        const response = await axios.put(`http://127.0.0.1:8000/api1/ratings/update/${userRating.id}/`, {
+          user: user_id,
+          movie: id,
+          rating,
+          review
+        }, {
+          headers: {
+            Authorization: `Token ${token}`
+          }
+        });
+        setSubmitSuccess('Rating and review updated successfully!');
+        setMovie((prevMovie) => ({
+          ...prevMovie,
+          avg_rating: response.data.avg_rating,
+        }));
+      } else {
+        // Create new rating
+        const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
+          user: user_id,
+          movie: id,
+          rating,
+          review
+        }, {
+          headers: {
+            Authorization: `Token ${token}`
+          }
+        });
+        setSubmitSuccess('Rating and review submitted successfully!');
+        setMovie((prevMovie) => ({
+          ...prevMovie,
+          avg_rating: response.data.avg_rating,
+        }));
+        setUserRating(response.data); // Set the user rating state with the response data
+      }
       setSubmitError(null);
     } catch (err) {
       console.error('Error submitting rating and review:', err);
       setSubmitError('Failed to submit rating and review. Please try again.');
+      setSubmitSuccess(null);
+    }
+  };
+
+  const handleRatingDelete = async () => {
+    if (!token || !userRating) {
+      return;
+    }
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api1/ratings/delete/${userRating.id}/`, {
+        headers: {
+          Authorization: `Token ${token}`
+        }
+      });
+      setSubmitSuccess('Rating and review deleted successfully!');
+      setRating(0);
+      setReview('');
+      setUserRating(null);
+      setSubmitError(null);
+    } catch (err) {
+      console.error('Error deleting rating and review:', err);
+      setSubmitError('Failed to delete rating and review. Please try again.');
       setSubmitSuccess(null);
     }
   };
@@ -196,7 +251,18 @@ const MovieDescription = () => {
                       rows="4"
                       className="w-full p-2 rounded bg-gray-800 bg-opacity-50 text-white"
                     />
-                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Rating & Review</button>
+                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">
+                      {userRating ? 'Update Rating & Review' : 'Submit Rating & Review'}
+                    </button>
+                    {userRating && (
+                      <button
+                        type="button"
+                        onClick={handleRatingDelete}
+                        className="p-2 rounded bg-red-500 text-white mt-2 ml-2"
+                      >
+                        Delete Rating & Review
+                      </button>
+                    )}
                   </form>
 
                   {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
