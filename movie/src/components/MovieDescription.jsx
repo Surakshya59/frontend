@@ -97,8 +97,8 @@ const MovieDescription = () => {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
 
-        const reviewResponse = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/review/`);
-        setReviews(reviewResponse.data);
+        // const reviewResponse = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/review/`);
+        // setReviews(reviewResponse.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);
         setError('Movie not found or there was an error fetching the movie details.');
@@ -124,7 +124,7 @@ const MovieDescription = () => {
     }
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/ratings/create/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
         user: user_id,
         movie: id,
         rating
@@ -158,7 +158,7 @@ const MovieDescription = () => {
     }
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/movies/${id}/review/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/api1/reviews/create/`, {
         user: user_id,
         movie: id,
         review: reviewText,
@@ -179,7 +179,7 @@ const MovieDescription = () => {
   };
 
   const renderStars = () => {
-    return [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5].map((star) => (
+    return [1, 2, 3, 4, 5].map((star) => (
       <span
         key={star}
         style={star <= rating ? { ...starStyle, ...filledStarStyle } : starStyle}
