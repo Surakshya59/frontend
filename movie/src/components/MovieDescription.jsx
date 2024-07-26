@@ -78,7 +78,7 @@ const MovieDescription = () => {
   const [review, setReview] = useState('');
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
-  const [userRating, setUserRating] = useState(null); // New state for the user's rating
+  const [userRating, setUserRating] = useState(null);
   const user_id = localStorage.getItem('user_id');
   const token = localStorage.getItem('token');
 
@@ -87,7 +87,6 @@ const MovieDescription = () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
-        // Fetch user's rating for this movie
         if (token) {
           const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
             headers: {
@@ -124,7 +123,6 @@ const MovieDescription = () => {
 
     try {
       if (userRating) {
-        // Update existing rating
         const response = await axios.put(`http://127.0.0.1:8000/api1/ratings/update/${userRating.id}/`, {
           user: user_id,
           movie: id,
@@ -141,7 +139,6 @@ const MovieDescription = () => {
           avg_rating: response.data.avg_rating,
         }));
       } else {
-        // Create new rating
         const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
           user: user_id,
           movie: id,
@@ -157,7 +154,7 @@ const MovieDescription = () => {
           ...prevMovie,
           avg_rating: response.data.avg_rating,
         }));
-        setUserRating(response.data); // Set the user rating state with the response data
+        setUserRating(response.data);
       }
       setSubmitError(null);
     } catch (err) {
