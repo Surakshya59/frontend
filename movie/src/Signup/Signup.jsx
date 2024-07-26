@@ -4,7 +4,6 @@ import axios from 'axios';
 import backgroundImage from '../images/bgmain.jpg'; // Make sure to update the path accordingly
 
 const Signup = () => {
-
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -16,15 +15,20 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-console.log({
+    setError(null);
 
-  firstName,
-   lastName,
-  email,
-  username,
-  password,
-  confirmPassword,
-});
+    // Check if any field is empty
+    if (!firstName || !lastName || !email || !username || !password || !confirmPassword) {
+      setError('Please fill out all fields.');
+      return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/signup/', {
         first_name: firstName,
@@ -37,13 +41,12 @@ console.log({
 
       console.log('Signup successful:', response.data);
       navigate('/login');
-
     } catch (err) {
       if (err.response) {
         setError(err.response.data);  // Set error state with the error message from the backend
         console.error('Signup error:', err.response.data);
       } else {
-        setError('Fill all the missing fields.');  // Handle other errors
+        setError('Unexpected error occurred.');  // Handle other errors
         console.error('Unexpected error:', err.message);
       }
     }
