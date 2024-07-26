@@ -1,17 +1,8 @@
-// src/Login/Login.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import backgroundImage from "../images/bgmain.jpg";
-
-
-  const handleCloseAlert = () => {
-    setError('');
-    setSuccess('');
-  };
-
-
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -28,11 +19,6 @@ const LoginPage = () => {
     backgroundRepeat: 'repeat',
   };
 
-  const handleCloseAlert = () => {
-    setError('');
-    setSuccess('');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -44,27 +30,17 @@ const LoginPage = () => {
         password,
       });
 
-      console.log('Server response:', response);
-
-      if (response.status === 200 ) {
-        console.log(response.data.token);
+      if (response.status === 200) {
         localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user_id',response.data.id);
-        window.dispatchEvent(new Event('loginStateChanged'));
+        localStorage.setItem('user_id', response.data.id);
+        login(response.data.token); // Call login with the token
         setSuccess('Login successful!');
-        login();
-        setTimeout(() => {
-          navigate('/home');
-        }, 1000);
-       
+        navigate('/home');
       } else {
-        console.error('Unexpected response:', response);
         setError('Login failed. Please try again.');
       }
     } catch (error) {
-      console.error('Login error:', error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
         setError(error.response.data.detail || 'Login failed. Please try again.');
       } else {
         setError('Login failed. Please try again.');
@@ -81,7 +57,7 @@ const LoginPage = () => {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <input
-              type="username"
+              type="text"
               placeholder="Username"
               className="w-full p-3 rounded bg-gray-800 bg-opacity-50 text-white"
               value={username}
@@ -97,7 +73,6 @@ const LoginPage = () => {
           </div>
           <div className="flex justify-center">
             <button
-            onClick={handleSubmit}
               type="submit"
               className="w-full max-w-xs p-3 rounded bg-red-900 text-white font-bold hover:bg-red-900">
               Log In
@@ -107,6 +82,16 @@ const LoginPage = () => {
             <Link to="/signup" className="text-white text-lg bg-black p-2 rounded-sm w-1/2 text-center">Register</Link>
           </div>
         </form>
+        {error && (
+          <div className="mt-4 p-2 bg-red-900 text-white text-center rounded">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mt-4 p-2 bg-green-900 text-white text-center rounded">
+            {success}
+          </div>
+        )}
       </div>
     </div>
   );
