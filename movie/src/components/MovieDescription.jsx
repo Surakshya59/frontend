@@ -8,7 +8,7 @@ const backgroundStyle = {
   backgroundImage: `url(${backgroundImage})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
+  backgroundRepeat: 'repeat',
   minHeight: '100vh',
 };
 
