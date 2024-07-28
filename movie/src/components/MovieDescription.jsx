@@ -8,9 +8,8 @@ const backgroundStyle = {
   backgroundImage: `url(${backgroundImage})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
+  backgroundRepeat: 'repeat',
   minHeight: '100vh',
-  width: '100vw',
 };
 
 const overlayStyle = {
@@ -19,20 +18,15 @@ const overlayStyle = {
   borderRadius: '10px',
   width: '100%',
   height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
 };
 
 const boxStyle = {
-  backgroundColor: 'rgba(0, 0, 0, 0.8)',
+  backgroundColor: 'rgba(0, 0, 0, 0.8)',  // Black box with opacity
   padding: '20px',
   borderRadius: '10px',
-  color: 'white',
+  color: 'white',  // White text color
   display: 'flex',
   alignItems: 'flex-start',
-  width: '80%',
-  maxWidth: '800px',
 };
 
 const posterStyle = {
@@ -51,7 +45,6 @@ const ratingFormStyle = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-start',
-  width: '100%',
 };
 
 const starContainerStyle = {
@@ -62,11 +55,11 @@ const starContainerStyle = {
 const starStyle = {
   fontSize: '30px',
   cursor: 'pointer',
-  color: '#ddd',
+  color: '#ddd', // Default color of stars
 };
 
 const filledStarStyle = {
-  color: '#ffc107',
+  color: '#ffc107', // Color of filled stars
 };
 
 const MovieDescription = () => {
@@ -75,10 +68,9 @@ const MovieDescription = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rating, setRating] = useState(0);
-  const [review, setReview] = useState('');
+  const [review, setReview] = useState(''); // New state for the review
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
-  const [userRating, setUserRating] = useState(null);
   const user_id = localStorage.getItem('user_id');
   const token = localStorage.getItem('token');
 
@@ -87,18 +79,6 @@ const MovieDescription = () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
-        if (token) {
-          const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
-            headers: {
-              Authorization: `Token ${token}`
-            }
-          });
-          if (ratingResponse.data) {
-            setUserRating(ratingResponse.data);
-            setRating(ratingResponse.data.rating);
-            setReview(ratingResponse.data.review);
-          }
-        }
       } catch (err) {
         console.error('Error fetching movie details:', err);
         setError('Movie not found or there was an error fetching the movie details.');
@@ -107,7 +87,7 @@ const MovieDescription = () => {
       }
     };
     fetchMovie();
-  }, [id, token, user_id]);
+  }, [id]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -115,73 +95,42 @@ const MovieDescription = () => {
 
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
+    console.log(token);
+
     if (!token) {
       setSubmitError('You must be logged in to rate a movie.');
       setSubmitSuccess(null);
       return;
     }
 
-    try {
-      if (userRating) {
-        const response = await axios.put(`http://127.0.0.1:8000/api1/ratings/update/${userRating.id}/`, {
-          user: user_id,
-          movie: id,
-          rating,
-          review
-        }, {
-          headers: {
-            Authorization: `Token ${token}`
-          }
-        });
-        setSubmitSuccess('Rating and review updated successfully!');
-        setMovie((prevMovie) => ({
-          ...prevMovie,
-          avg_rating: response.data.avg_rating,
-        }));
-      } else {
-        const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
-          user: user_id,
-          movie: id,
-          rating,
-          review
-        }, {
-          headers: {
-            Authorization: `Token ${token}`
-          }
-        });
-        setSubmitSuccess('Rating and review submitted successfully!');
-        setMovie((prevMovie) => ({
-          ...prevMovie,
-          avg_rating: response.data.avg_rating,
-        }));
-        setUserRating(response.data);
-      }
-      setSubmitError(null);
-    } catch (err) {
-      console.error('Error submitting rating and review:', err);
-      setSubmitError('Failed to submit rating and review. Please try again.');
+    if (!user_id) {
+      setSubmitError('User ID not found. Please log in again.');
       setSubmitSuccess(null);
-    }
-  };
-
-  const handleRatingDelete = async () => {
-    if (!token || !userRating) {
       return;
     }
+
     try {
-      await axios.delete(`http://127.0.0.1:8000/api1/ratings/delete/${userRating.id}/`, {
+      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
+        user: user_id,
+        movie: id,
+        rating,
+        review // Include review in the request payload
+      }, {
         headers: {
           Authorization: `Token ${token}`
         }
       });
-      setSubmitSuccess('Rating and review deleted successfully!');
+      setSubmitSuccess('Rating and review submitted successfully!');
+      setMovie((prevMovie) => ({
+        ...prevMovie,
+        avg_rating: response.data.avg_rating,
+      }));
       setRating(0);
-      setReview('');
-      setUserRating(null);
+      setReview(''); // Clear the review field
       setSubmitError(null);
     } catch (err) {
-      console.error('Error deleting rating and review:', err);
-      setSubmitError('Failed to delete rating and review. Please try again.');
+      console.error('Error submitting rating and review:', err);
+      setSubmitError('Failed to submit rating and review. Please try again.');
       setSubmitSuccess(null);
     }
   };
@@ -214,7 +163,7 @@ const MovieDescription = () => {
     <div style={backgroundStyle} className="flex flex-col min-h-screen">
       <div className="flex flex-grow">
         <Sidebar />
-        <main className="relative text-white w-full flex flex-col items-center">
+        <main className="relative ml-60 mt-20 text-white w-full flex flex-col items-center">
           <div className="absolute top-0 left-0 w-full h-full" style={overlayStyle}>
             <div className="mywidth mb-10 w-full max-w-7xl p-4">
               <div style={boxStyle}>
@@ -248,18 +197,7 @@ const MovieDescription = () => {
                       rows="4"
                       className="w-full p-2 rounded bg-gray-800 bg-opacity-50 text-white"
                     />
-                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">
-                      {userRating ? 'Update Rating & Review' : 'Submit Rating & Review'}
-                    </button>
-                    {userRating && (
-                      <button
-                        type="button"
-                        onClick={handleRatingDelete}
-                        className="p-2 rounded bg-red-500 text-white mt-2 ml-2"
-                      >
-                        Delete Rating & Review
-                      </button>
-                    )}
+                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Rating & Review</button>
                   </form>
 
                   {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
