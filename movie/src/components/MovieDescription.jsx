@@ -62,13 +62,34 @@ const filledStarStyle = {
   color: '#ffc107', // Color of filled stars
 };
 
+const threeDotsMenuStyle = {
+  position: 'relative',
+  display: 'inline-block',
+};
+
+const threeDotsContentStyle = {
+  display: 'none',
+  position: 'absolute',
+  right: '0',
+  backgroundColor: '#fff',
+  minWidth: '120px',
+  boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
+  zIndex: '1',
+};
+
+const threeDotsMenuHoverStyle = {
+  display: 'block',
+};
+
 const MovieDescription = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rating, setRating] = useState(0);
-  const [review, setReview] = useState(''); // New state for the review
+  const [review, setReview] = useState('');
+  const [userRating, setUserRating] = useState(null);
+  const [userReview, setUserReview] = useState(null);
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(null);
   const user_id = localStorage.getItem('user_id');
@@ -86,8 +107,30 @@ const MovieDescription = () => {
         setLoading(false);
       }
     };
+
+    const fetchUserRatingAndReview = async () => {
+      if (!token || !user_id) return;
+
+      try {
+        const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+          headers: { Authorization: `Token ${token}` }
+        });
+        setUserRating(ratingResponse.data);
+        setRating(ratingResponse.data.rating);
+
+        const reviewResponse = await axios.get(`http://127.0.0.1:8000/api1/reviews/user/${user_id}/movie/${id}/`, {
+          headers: { Authorization: `Token ${token}` }
+        });
+        setUserReview(reviewResponse.data);
+        setReview(reviewResponse.data.review);
+      } catch (err) {
+        console.error('Error fetching user rating and review:', err);
+      }
+    };
+
     fetchMovie();
-  }, [id]);
+    fetchUserRatingAndReview();
+  }, [id, token, user_id]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
@@ -95,7 +138,6 @@ const MovieDescription = () => {
 
   const handleRatingSubmit = async (e) => {
     e.preventDefault();
-    console.log(token);
 
     if (!token) {
       setSubmitError('You must be logged in to rate a movie.');
@@ -110,27 +152,85 @@ const MovieDescription = () => {
     }
 
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
-        user: user_id,
-        movie: id,
-        rating,
-        review // Include review in the request payload
-      }, {
-        headers: {
-          Authorization: `Token ${token}`
-        }
-      });
-      setSubmitSuccess('Rating and review submitted successfully!');
+      const ratingPayload = { user: user_id, movie: id, rating };
+
+      if (userRating) {
+        await axios.put(`http://127.0.0.1:8000/api1/ratings/${userRating.id}/`, ratingPayload, {
+          headers: { Authorization: `Token ${token}` }
+        });
+      } else {
+        await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, ratingPayload, {
+          headers: { Authorization: `Token ${token}` }
+        });
+      }
+
+      setSubmitSuccess('Rating submitted successfully!');
+      setSubmitError(null);
+      setUserRating({ ...ratingPayload }); // Update local user rating state
       setMovie((prevMovie) => ({
         ...prevMovie,
-        avg_rating: response.data.avg_rating,
+        avg_rating: rating // Update the average rating if needed
       }));
-      setRating(0);
-      setReview(''); // Clear the review field
-      setSubmitError(null);
     } catch (err) {
-      console.error('Error submitting rating and review:', err);
-      setSubmitError('Failed to submit rating and review. Please try again.');
+      console.error('Error submitting rating:', err);
+      setSubmitError('Failed to submit rating. Please try again.');
+      setSubmitSuccess(null);
+    }
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+      setSubmitError('You must be logged in to leave a review.');
+      setSubmitSuccess(null);
+      return;
+    }
+
+    if (!user_id) {
+      setSubmitError('User ID not found. Please log in again.');
+      setSubmitSuccess(null);
+      return;
+    }
+
+    try {
+      const reviewPayload = { user: user_id, movie: id, review };
+
+      if (userReview) {
+        await axios.put(`http://127.0.0.1:8000/api1/reviews/${userReview.id}/`, reviewPayload, {
+          headers: { Authorization: `Token ${token}` }
+        });
+      } else {
+        await axios.post(`http://127.0.0.1:8000/api1/reviews/create/`, reviewPayload, {
+          headers: { Authorization: `Token ${token}` }
+        });
+      }
+
+      setSubmitSuccess('Review submitted successfully!');
+      setSubmitError(null);
+      setUserReview({ ...reviewPayload }); // Update local user review state
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      setSubmitError('Failed to submit review. Please try again.');
+      setSubmitSuccess(null);
+    }
+  };
+
+  const handleEditReview = () => {
+    setReview(userReview.review);
+  };
+
+  const handleDeleteReview = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/api1/reviews/${userReview.id}/`, {
+        headers: { Authorization: `Token ${token}` }
+      });
+      setUserReview(null);
+      setReview('');
+      setSubmitSuccess('Review deleted successfully!');
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      setSubmitError('Failed to delete review. Please try again.');
       setSubmitSuccess(null);
     }
   };
@@ -170,36 +270,61 @@ const MovieDescription = () => {
                 <img src={movie.poster_url} alt={movie.title} style={posterStyle} />
                 <div style={detailsStyle}>
                   <h1 className="text-3xl font-bold mb-4">{movie.title}</h1>
-                  <p className="text-lg mb-2"><strong>Overview:</strong> {movie.overview}</p>
-                  <p className="text-lg mb-2"><strong>Genre:</strong> {movie.genres}</p>
-                  <p className="text-lg mb-2"><strong>Release Date:</strong> {movie.release_date}</p>
+                  <p className="text-lg mb-1"><strong>Overview:</strong> {movie.overview}</p>
+                  <p className="text-lg mb-1"><strong>Genre:</strong> {movie.genres}</p>
+                  <p className="text-lg mb-1"><strong>Release Date:</strong> {movie.release_date}</p>
                   {Array.isArray(movie.directors) && (
                     <p className="text-lg mb-2"><strong>Directors:</strong> {movie.directors.join(', ')}</p>
                   )}
-                  <p className="text-lg mb-2"><strong>Runtime:</strong> {movie.runtime} minutes</p>
-                  <p className="text-lg mb-2"><strong>Budget:</strong> ${movie.budget?.toLocaleString()}</p>
-                  {Array.isArray(movie.credits) && (
-                    <p className="text-lg mb-2"><strong>Credits:</strong> {movie.credits.join(', ')}</p>
-                  )}
-                  <p className="text-lg mb-2"><strong>Average Rating:</strong> {movie.avg_rating || 'N/A'}</p>
-                  
-                  <form style={ratingFormStyle} onSubmit={handleRatingSubmit}>
-                    <label htmlFor="rating" className="mb-2"><strong>Rate this movie:</strong></label>
-                    <div id="rating" name="rating" style={starContainerStyle}>
-                      {renderStars()}
+                  <p className="text-lg mb-1"><strong>Runtime:</strong> {movie.runtime} minutes</p>
+                  <p className="text-lg mb-1"><strong>Budget:</strong> ${movie.budget}</p>
+                  <p className="text-lg mb-1"><strong>Average Rating:</strong> {movie.avg_rating}</p>
+                  {userRating && (
+                    <div className="text-lg mb-1">
+                      <strong>Your Rating:</strong> {userRating.rating}
                     </div>
-                    <label htmlFor="review" className="mt-4 mb-2"><strong>Leave a review:</strong></label>
-                    <textarea
-                      id="review"
-                      name="review"
-                      value={review}
-                      onChange={(e) => setReview(e.target.value)}
-                      rows="4"
-                      className="w-full p-2 rounded bg-gray-800 bg-opacity-50 text-white"
-                    />
-                    <button type="submit" className="p-2 rounded bg-blue-500 text-white mt-2">Submit Rating & Review</button>
-                  </form>
-
+                  )}
+                  {userReview && (
+                    <div className="text-lg mb-1">
+                      <strong>Your Review:</strong> {userReview.review}
+                      <div
+                        style={threeDotsMenuStyle}
+                        onMouseEnter={(e) => (e.currentTarget.children[1].style.display = 'block')}
+                        onMouseLeave={(e) => (e.currentTarget.children[1].style.display = 'none')}
+                      >
+                        <span>⋮</span>
+                        <div style={threeDotsContentStyle}>
+                          <a href="#" onClick={handleEditReview}>Edit</a>
+                          <a href="#" onClick={handleDeleteReview}>Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {!userRating && (
+                    <form onSubmit={handleRatingSubmit} style={ratingFormStyle}>
+                      <div style={starContainerStyle}>
+                        {renderStars()}
+                      </div>
+                      <button type="submit" className="mt-2 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        Submit Rating
+                      </button>
+                    </form>
+                  )}
+                  {!userReview && (
+                    <form onSubmit={handleReviewSubmit} style={ratingFormStyle}>
+                      <textarea
+                        value={review}
+                        onChange={(e) => setReview(e.target.value)}
+                        className="mt-2 p-2 rounded"
+                        rows="1"
+                        cols="50"
+                        placeholder="Write your review here..."
+                      />
+                      <button type="submit" className="mt-2 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        Submit Review
+                      </button>
+                    </form>
+                  )}
                   {submitError && <p className="text-red-500 mt-2">{submitError}</p>}
                   {submitSuccess && <p className="text-green-500 mt-2">{submitSuccess}</p>}
                 </div>
