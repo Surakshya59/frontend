@@ -13,6 +13,7 @@ import Trending from './components/Trending';
 import Footer from './Footer/Footer'; // Import the Footer component
 import Profile from './Profile'; // Import Profile component
 import MovieDescription from './components/MovieDescription'; // Import the MovieDescription component
+import GenrePage from './components/Genre';
 import './index.css'; // Ensure correct path to your CSS file
 
 const App = () => {
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/logout" element={<Logout />} />
           <Route path="/movie/:id" element={<MovieDescription />} />
+          <Route path="/genre/:genre" element={<GenrePage />} />
         </Routes>
       </div>
       <Footer />
