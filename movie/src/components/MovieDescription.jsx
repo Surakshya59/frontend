@@ -305,7 +305,7 @@ const MovieDescription = () => {
                       <div style={starContainerStyle}>
                         {renderStars()}
                       </div>
-                      <button type="submit" className="mt-2 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                      <button type="submit" className="mt-1 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         Submit Rating
                       </button>
                     </form>
@@ -320,7 +320,7 @@ const MovieDescription = () => {
                         cols="50"
                         placeholder="Write your review here..."
                       />
-                      <button type="submit" className="mt-2 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                      <button type="submit" className="mt-1 bg-red-800 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         Submit Review
                       </button>
                     </form>

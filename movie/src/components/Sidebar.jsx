@@ -1,16 +1,45 @@
-import React, { useEffect, useContext, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+
 
 const Layout = () => {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isGenreOpen, setIsGenreOpen] = useState(false);
+  const [movies, setMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {}, [location.pathname]);
+  useEffect(() => {
+    const fetchMovies = async (genre) => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api2/movies/genre/${genre}`);
+        setMovies(response.data);
+        setError("");
+      } catch (err) {
+        setError("Failed to fetch movies");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const genre = location.pathname.split("/")[2];
+    if (genre) {
+      fetchMovies(genre);
+    }
+  }, [location.pathname]);
 
   const handleGenreToggle = () => {
     setIsGenreOpen(!isGenreOpen);
+  };
+
+  const handleGenreClick = (genre) => {
+    navigate(`/genre/${genre}`);
+    setIsGenreOpen(false);
   };
 
   return (
@@ -58,24 +87,36 @@ const Layout = () => {
                     {isGenreOpen && (
                       <ul className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg">
                         <li className="px-4 py-2 hover:bg-gray-700">
-                          <Link to="/genre/action" className="text-white">
+                          <button
+                            onClick={() => handleGenreClick("action")}
+                            className="text-white"
+                          >
                             Action
-                          </Link>
+                          </button>
                         </li>
                         <li className="px-4 py-2 hover:bg-gray-700">
-                          <Link to="/genre/sci-fi" className="text-white">
+                          <button
+                            onClick={() => handleGenreClick("sci-fi")}
+                            className="text-white"
+                          >
                             Sci-Fi
-                          </Link>
+                          </button>
                         </li>
                         <li className="px-4 py-2 hover:bg-gray-700">
-                          <Link to="/genre/romantic" className="text-white">
+                          <button
+                            onClick={() => handleGenreClick("romantic")}
+                            className="text-white"
+                          >
                             Romantic
-                          </Link>
+                          </button>
                         </li>
                         <li className="px-4 py-2 hover:bg-gray-700">
-                          <Link to="/genre/comedy" className="text-white">
+                          <button
+                            onClick={() => handleGenreClick("comedy")}
+                            className="text-white"
+                          >
                             Comedy
-                          </Link>
+                          </button>
                         </li>
                       </ul>
                     )}
@@ -117,6 +158,22 @@ const Layout = () => {
           )}
         </div>
       </aside>
+
+      {/* Display movies or loading/error messages */}
+      <main className="ml-1/6 p-4">
+        {loading && <p>Loading movies...</p>}
+        {error && <p>{error}</p>}
+        {movies.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {movies.map((movie) => (
+              <div key={movie.id} className="bg-gray-800 p-4 rounded-lg">
+                <h2 className="text-white text-xl">{movie.title}</h2>
+                <p className="text-gray-400">{movie.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </>
   );
 };
