@@ -47,8 +47,10 @@ const HomePage = () => {
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
+    console.log(response)
   };
 
+  
   const handleHomeClick = () => {
     setSearchTerm('');
     setSearchResults([]);
