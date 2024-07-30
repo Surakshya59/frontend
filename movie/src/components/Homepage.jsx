@@ -62,7 +62,7 @@ const HomePage = () => {
   };
 
   const overlayStyle = {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
     padding: '20px',
     borderRadius: '10px',
   };
@@ -160,7 +160,7 @@ const HomePage = () => {
                 />
                 <button
                   onClick={handleSearch}
-                  className="p-2 ml-2 bg-yellow-500 text-black font-bold rounded"
+                  className="p-2 ml-2 bg-red-900 text-white font-bold rounded"
                 >
                   Search
                 </button>
@@ -177,13 +177,19 @@ const HomePage = () => {
                         />
                         <h3 className="text-xl font-bold">{result.title}</h3>
                         <p className="text-sm">Release Date: {result.release_date}</p>
-                      </div>
+                        <button
+                          onClick={() => handleAddToWatchlist(result.id)}
+                          className="mt-2 bg-red-600 text-white font-bold py-1 px-2 rounded"
+                        >
+                          Add to Watchlist
+                        </button>
+                         </div>
                     ))}
                   </div>
                 </div>
               ) : (
                 <>
-                  <h2 className="text-3xl mb-4 font-bold text-yellow-300">All Movies</h2>
+                  <h2 className="text-3xl mb-4 font-bold text-red-700">All Movies</h2>
                   <Slider {...settings}>
                     {loading ? (
                       Array.from({ length: 6 }).map((_, index) => <SkeletonLoader key={index} />)
@@ -197,6 +203,12 @@ const HomePage = () => {
                           />
                           <h3 className="text-xl font-bold">{movie.title}</h3>
                           <p className="text-sm">Release Date: {movie.release_date}</p>
+                          <button
+                            onClick={() => handleAddToWatchlist(movie.id)}
+                            className="mt-2 bg-red-900 text-white font-bold py-1 px-2 rounded"
+                          >
+                            Add to Watchlist
+                          </button>
                         </div>
                       ))
                     )}

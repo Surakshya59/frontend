@@ -1,12 +1,17 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Layout = () => {
   const { user, logout } = useContext(AuthContext);
   const location = useLocation();
+  const [isGenreOpen, setIsGenreOpen] = useState(false);
 
   useEffect(() => {}, [location.pathname]);
+
+  const handleGenreToggle = () => {
+    setIsGenreOpen(!isGenreOpen);
+  };
 
   return (
     <>
@@ -43,10 +48,37 @@ const Layout = () => {
                       Popular
                     </Link>
                   </li>
-                  <li className="mb-4">
-                    <Link to="/genre" className="text-white text-lg">
+                  <li className="mb-4 relative">
+                    <button
+                      onClick={handleGenreToggle}
+                      className="text-white text-lg focus:outline-none"
+                    >
                       Genre
-                    </Link>
+                    </button>
+                    {isGenreOpen && (
+                      <ul className="absolute left-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg">
+                        <li className="px-4 py-2 hover:bg-gray-700">
+                          <Link to="/genre/action" className="text-white">
+                            Action
+                          </Link>
+                        </li>
+                        <li className="px-4 py-2 hover:bg-gray-700">
+                          <Link to="/genre/sci-fi" className="text-white">
+                            Sci-Fi
+                          </Link>
+                        </li>
+                        <li className="px-4 py-2 hover:bg-gray-700">
+                          <Link to="/genre/romantic" className="text-white">
+                            Romantic
+                          </Link>
+                        </li>
+                        <li className="px-4 py-2 hover:bg-gray-700">
+                          <Link to="/genre/comedy" className="text-white">
+                            Comedy
+                          </Link>
+                        </li>
+                      </ul>
+                    )}
                   </li>
                 </ul>
               </nav>
