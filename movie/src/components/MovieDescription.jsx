@@ -189,9 +189,14 @@ const MovieDescription = () => {
     fetchUserRatingAndReview();
   }, [id, token, user_id, rating]);
 
+  // const handleRatingChange = (newRating) => {
+  //   setRating(newRating);
+  //   setUserRating(newRating)
+  // };
+
   const handleRatingChange = (newRating) => {
     setRating(newRating);
-    setUserRating(newRating)
+    setUserRating({ ...userRating, rating: newRating });
   };
 
   const handleRatingSubmit = async (e) => {
