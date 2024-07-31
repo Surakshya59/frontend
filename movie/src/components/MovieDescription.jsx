@@ -98,7 +98,7 @@ const MovieDescription = () => {
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/movies/${same_id}/`);
+        const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
         setMovie(response.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);

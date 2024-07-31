@@ -58,9 +58,9 @@ const Layout = () => {
               <nav>
                 <ul>
                   <li className="mb-4 mt-1">
-                    <Link to="/home" className="text-white text-lg">
+                    <a href="/home" className="text-white text-lg">
                       Home
-                    </Link>
+                    </a>
                   </li>
                   <li className="mb-4">
                     <Link to="/watchlist" className="text-white text-lg">
