@@ -98,7 +98,7 @@ const MovieDescription = () => {
   useEffect(() => {
     const fetchMovie = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/movies/${id}/`);
+        const response = await axios.get(`http://127.0.0.1:8000/api/movies/${same_id}/`);
         setMovie(response.data);
       } catch (err) {
         console.error('Error fetching movie details:', err);
@@ -152,7 +152,7 @@ const MovieDescription = () => {
     }
 
     try {
-      const ratingPayload = { user: user_id, movie: id, rating };
+      const ratingPayload = { user: user_id, movie:id, rating };
 
       if (userRating) {
         await axios.put(`http://127.0.0.1:8000/api1/ratings/${userRating.id}/`, ratingPayload, {
