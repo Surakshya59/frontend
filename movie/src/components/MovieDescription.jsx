@@ -155,14 +155,14 @@ const MovieDescription = () => {
       if (!token || !user_id) return;
     
       try {
-        // Check if the user has rated the movie before
-        const existingRatingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
-          headers: { Authorization: `Token ${token}` }
-        });
+        // // Check if the user has rated the movie before
+        // const existingRatingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+        //   headers: { Authorization: `Token ${token}` }
+        // });
     
         // If the user has already rated, update the rating
         if (existingRatingResponse.data) {
-          await axios.put(`http://127.0.0.1:8000/api1/ratings/update/`, {
+          await axios.put(`http://127.0.0.1:8000/api1/ratings/update/user/${user_id}/movie/${id}/`, {
             user: user_id,
             movie: id,
             rating: newRating
