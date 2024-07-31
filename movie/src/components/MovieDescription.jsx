@@ -108,32 +108,90 @@ const MovieDescription = () => {
       }
     };
 
+    // const fetchUserRatingAndReview = async () => {
+    //   if (!token || !user_id) return;
+
+    //   try {
+    //     const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+    //       headers: { Authorization: `Token ${token}` }
+    //     });
+    //     setUserRating(ratingResponse.data);
+    //     setRating(ratingResponse.data.rating);
+
+    //     const reviewResponse = await axios.get(`http://127.0.0.1:8000/api1/reviews/user/${user_id}/movie/${id}/`, {
+    //       headers: { Authorization: `Token ${token}` }
+    //     });
+    //     setUserReview(reviewResponse.data);
+    //     setReview(reviewResponse.data.review);
+    //   } catch (err) {
+    //     console.error('Error fetching user rating and review:', err);
+    //   }
+    // };
+
     const fetchUserRatingAndReview = async () => {
       if (!token || !user_id) return;
-
+    
       try {
-        const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+        // Fetch user rating
+        const ratingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/${id}/`, {
           headers: { Authorization: `Token ${token}` }
         });
         setUserRating(ratingResponse.data);
         setRating(ratingResponse.data.rating);
-
-        const reviewResponse = await axios.get(`http://127.0.0.1:8000/api1/reviews/user/${user_id}/movie/${id}/`, {
-          headers: { Authorization: `Token ${token}` }
-        });
-        setUserReview(reviewResponse.data);
-        setReview(reviewResponse.data.review);
+        console.log(response)
+    
+        // Fetch user review
+        // const reviewResponse = await axios.get(`http://127.0.0.1:8000/api1/reviews/user/${user_id}/movie/${id}/`, {
+        //   headers: { Authorization: `Token ${token}` }
+        // });
+        // setUserReview(reviewResponse.data);
+        // setReview(reviewResponse.data.review);
       } catch (err) {
         console.error('Error fetching user rating and review:', err);
       }
     };
+    
+    const submitUserRating = async (newRating) => {
+      if (!token || !user_id) return;
+    
+      try {
+        // Check if the user has rated the movie before
+        const existingRatingResponse = await axios.get(`http://127.0.0.1:8000/api1/ratings/user/${user_id}/movie/${id}/`, {
+          headers: { Authorization: `Token ${token}` }
+        });
+    
+        // If the user has already rated, update the rating
+        if (existingRatingResponse.data) {
+          await axios.put(`http://127.0.0.1:8000/api1/ratings/update/`, {
+            user: user_id,
+            movie: id,
+            rating: newRating
+          }, {
+            headers: { Authorization: `Token ${token}` }
+          });
+        } else {
+          // If the user hasn't rated yet, create a new rating
+          await axios.post(`http://127.0.0.1:8000/api1/ratings/create/`, {
+            user: user_id,
+            movie: id,
+            rating: newRating
+          }, {
+            headers: { Authorization: `Token ${token}` }
+          });
+        }
+      } catch (err) {
+        console.error('Error submitting user rating:', err);
+      }
+    };
+    
 
     fetchMovie();
     fetchUserRatingAndReview();
-  }, [id, token, user_id]);
+  }, [id, token, user_id, rating]);
 
   const handleRatingChange = (newRating) => {
     setRating(newRating);
+    setUserRating(newRating)
   };
 
   const handleRatingSubmit = async (e) => {
@@ -155,7 +213,7 @@ const MovieDescription = () => {
       const ratingPayload = { user: user_id, movie:id, rating };
 
       if (userRating) {
-        await axios.put(`http://127.0.0.1:8000/api1/ratings/${userRating.id}/`, ratingPayload, {
+        await axios.put(`http://127.0.0.1:8000/api1/ratings/update/${userRating.id}/`, ratingPayload, {
           headers: { Authorization: `Token ${token}` }
         });
       } else {
@@ -281,7 +339,7 @@ const MovieDescription = () => {
                   <p className="text-lg mb-1"><strong>Average Rating:</strong> {movie.avg_rating}</p>
                   {userRating && (
                     <div className="text-lg mb-1">
-                      <strong>Your Rating:</strong> {userRating.rating}
+                      <strong>Your Rating:</strong>{renderStars()} 
                     </div>
                   )}
                   {userReview && (
@@ -300,7 +358,7 @@ const MovieDescription = () => {
                       </div>
                     </div>
                   )}
-                  {!userRating && (
+                  {userRating && (
                     <form onSubmit={handleRatingSubmit} style={ratingFormStyle}>
                       <div style={starContainerStyle}>
                         {renderStars()}
